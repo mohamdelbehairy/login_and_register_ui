@@ -19,34 +19,36 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavController
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.login_and_register_ui.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginView(navController: NavController) {
+fun RegisterView(navController: NavController) {
 
     val context = LocalContext.current
+    val name = remember { mutableStateOf("") }
     val email = remember { mutableStateOf("") }
+    val phone = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
+    val confirmPassword = remember { mutableStateOf("") }
 
     val passwordVisible = remember { mutableStateOf(false) }
 
@@ -75,17 +77,24 @@ fun LoginView(navController: NavController) {
                     contentScale = ContentScale.Fit
                 )
             }
-            // space
+
             Spacer(modifier = Modifier.padding(20.dp))
 
-            Text(
-                text = "Sign In",
-                fontWeight = FontWeight.Bold,
-                color = Black,
-                fontSize = 40.sp,
+            // name
+            OutlinedTextField(
+                value = name.value,
+                onValueChange = { name.value = it },
+                label = { Text(text = "Name", color = Black) },
+                placeholder = { Text(text = "Name", color = Black) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(0.8f),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    unfocusedBorderColor = Black,
+
+                    )
             )
 
-            Spacer(modifier = Modifier.padding(20.dp))
+            Spacer(modifier = Modifier.padding(4.dp))
 
             // email
             OutlinedTextField(
@@ -93,6 +102,22 @@ fun LoginView(navController: NavController) {
                 onValueChange = { email.value = it },
                 label = { Text(text = "Email Address", color = Black) },
                 placeholder = { Text(text = "Email Address", color = Black) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(0.8f),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    unfocusedBorderColor = Black,
+
+                    )
+            )
+
+            Spacer(modifier = Modifier.padding(4.dp))
+
+            // phone number
+            OutlinedTextField(
+                value = phone.value,
+                onValueChange = { phone.value = it },
+                label = { Text(text = "Phone Number", color = Black) },
+                placeholder = { Text(text = "Phone Number", color = Black) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(0.8f),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -124,12 +149,44 @@ fun LoginView(navController: NavController) {
                     }
                 })
 
+            Spacer(modifier = Modifier.padding(4.dp))
+
+            // password
+            OutlinedTextField(value = confirmPassword.value,
+                onValueChange = { confirmPassword.value = it },
+                label = { Text(text = "Confirm Password", color = Black) },
+                placeholder = { Text(text = "Confirm Password", color = Black) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(0.8f),
+
+                visualTransformation = if (passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    IconButton(onClick = {
+                        passwordVisible.value = !passwordVisible.value
+                    }) {
+                        Icon(
+                            painter = painterResource(R.drawable.baseline_remove_red_eye_24),
+                            contentDescription = "Confirm Password",
+                            tint = if (passwordVisible.value) Color.Magenta else Color.Gray
+                        )
+                    }
+                })
+
             Spacer(modifier = Modifier.padding(20.dp))
             // button
             Button(
                 colors = ButtonDefaults.buttonColors(White),
                 onClick = {
                     when {
+
+                        name.value.isEmpty() -> {
+                            Toast.makeText(
+                                context,
+                                "Please enter name!",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+
                         email.value.isEmpty() -> {
                             Toast.makeText(
                                 context,
@@ -138,10 +195,34 @@ fun LoginView(navController: NavController) {
                             ).show()
                         }
 
+                        phone.value.isEmpty() -> {
+                            Toast.makeText(
+                                context,
+                                "Please enter phone number!",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+
                         password.value.isEmpty() -> {
                             Toast.makeText(
                                 context,
                                 "Please enter password!",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+
+                        confirmPassword.value.isEmpty() -> {
+                            Toast.makeText(
+                                context,
+                                "Please enter confirm password!",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+
+                        password.value != confirmPassword.value -> {
+                            Toast.makeText(
+                                context,
+                                "Password does not match!",
                                 Toast.LENGTH_LONG
                             ).show()
                         }
@@ -156,16 +237,16 @@ fun LoginView(navController: NavController) {
                     .fillMaxWidth(0.8f)
                     .height(50.dp)
             ) {
-                Text("Sign In", color = Black, fontSize = 20.sp)
+                Text("Sign Up", color = Black, fontSize = 20.sp)
             }
 
 //            Spacer(modifier = Modifier.padding(20.dp))
 
             Text(
-                text = "Create an Account?",
+                text = "Login Instead",
                 color = Black,
                 modifier = Modifier.clickable {
-                    navController.navigate("register_view")
+                    navController.navigate("login_view")
                 })
 
             Spacer(modifier = Modifier.padding(20.dp))
